@@ -3185,6 +3185,7 @@ class EC2Connection(AWSQueryConnection):
                                  from_port=None, to_port=None,
                                  cidr_ip=None, group_id=None,
                                  src_security_group_group_id=None,
+                                 cidr_ipv6=None,
                                  dry_run=False):
         """
         Add a new rule to an existing security group.
@@ -3217,6 +3218,9 @@ class EC2Connection(AWSQueryConnection):
         :type cidr_ip: string or list of strings
         :param cidr_ip: The CIDR block you are providing access to.
             See http://goo.gl/Yj5QC
+
+        :type cidr_ipv6: string or list of strings
+        :param cidr_ipv6: The CIDR IPv6 block you are providing access to.
 
         :type group_id: string
         :param group_id: ID of the EC2 or VPC security group to
@@ -3267,6 +3271,12 @@ class EC2Connection(AWSQueryConnection):
             for i, single_cidr_ip in enumerate(cidr_ip):
                 params['IpPermissions.1.IpRanges.%d.CidrIp' % (i + 1)] = \
                     single_cidr_ip
+        if cidr_ipv6:
+            if not isinstance(cidr_ipv6, list):
+                cidr_ipv6 = [cidr_ipv6]
+            for i, single_cidr_ip in enumerate(cidr_ipv6):
+                params['IpPermissions.1.Ipv6Ranges.%d.CidrIpv6' % (i + 1)] = \
+                    single_cidr_ip
         if dry_run:
             params['DryRun'] = 'true'
 
@@ -3280,6 +3290,7 @@ class EC2Connection(AWSQueryConnection):
                                         to_port=None,
                                         src_group_id=None,
                                         cidr_ip=None,
+                                        cidr_ipv6=None,
                                         dry_run=False):
         """
         The action adds one or more egress rules to a VPC security
@@ -3305,6 +3316,12 @@ class EC2Connection(AWSQueryConnection):
             params['IpPermissions.1.Groups.1.GroupId'] = src_group_id
         if cidr_ip is not None:
             params['IpPermissions.1.IpRanges.1.CidrIp'] = cidr_ip
+        if cidr_ipv6:
+            if not isinstance(cidr_ipv6, list):
+                cidr_ipv6 = [cidr_ipv6]
+            for i, single_cidr_ip in enumerate(cidr_ipv6):
+                params['IpPermissions.1.Ipv6Ranges.%d.CidrIpv6' % (i + 1)] = \
+                    single_cidr_ip
         if dry_run:
             params['DryRun'] = 'true'
 
@@ -3316,7 +3333,8 @@ class EC2Connection(AWSQueryConnection):
                                          src_security_group_owner_id=None,
                                          ip_protocol=None,
                                          from_port=None, to_port=None,
-                                         cidr_ip=None, dry_run=False):
+                                         cidr_ip=None,
+                                         dry_run=False):
         """
         NOTE: This method uses the old-style request parameters
               that did not allow a port to be specified when
@@ -3380,7 +3398,8 @@ class EC2Connection(AWSQueryConnection):
                               src_security_group_name=None,
                               src_security_group_owner_id=None,
                               ip_protocol=None, from_port=None, to_port=None,
-                              cidr_ip=None, group_id=None,
+                              cidr_ip=None, cidr_ipv6=None,
+                              group_id=None,
                               src_security_group_group_id=None, dry_run=False):
         """
         Remove an existing rule from an existing security group.
@@ -3413,6 +3432,9 @@ class EC2Connection(AWSQueryConnection):
         :type cidr_ip: string
         :param cidr_ip: The CIDR block you are revoking access to.
             See http://goo.gl/Yj5QC
+
+        :type cidr_ipv6: string
+        :param cidr_ipv6: The CIDR IPv6 block you are revoking access to.
 
         :type group_id: string
         :param group_id: ID of the EC2 or VPC security group to
@@ -3457,6 +3479,8 @@ class EC2Connection(AWSQueryConnection):
             params['IpPermissions.1.ToPort'] = to_port
         if cidr_ip:
             params['IpPermissions.1.IpRanges.1.CidrIp'] = cidr_ip
+        if cidr_ipv6:
+            params['IpPermissions.1.Ipv6Ranges.1.CidrIpv6'] = cidr_ipv6
         if dry_run:
             params['DryRun'] = 'true'
         return self.get_status('RevokeSecurityGroupIngress',
@@ -3468,7 +3492,8 @@ class EC2Connection(AWSQueryConnection):
                                      from_port=None,
                                      to_port=None,
                                      src_group_id=None,
-                                     cidr_ip=None, dry_run=False):
+                                     cidr_ip=None, cidr_ipv6=None,
+                                     dry_run=False):
         """
         Remove an existing egress rule from an existing VPC security
         group.  You need to pass in an ip_protocol, from_port and
@@ -3497,6 +3522,9 @@ class EC2Connection(AWSQueryConnection):
         :param cidr_ip: The CIDR block you are revoking access to.
             See http://goo.gl/Yj5QC
 
+        :type cidr_ipv6: string
+        :param cidr_ipv6: The CIDR IPv6 block you are revoking access to.
+
         :type dry_run: bool
         :param dry_run: Set to True if the operation should not actually run.
 
@@ -3517,6 +3545,8 @@ class EC2Connection(AWSQueryConnection):
             params['IpPermissions.1.Groups.1.GroupId'] = src_group_id
         if cidr_ip:
             params['IpPermissions.1.IpRanges.1.CidrIp'] = cidr_ip
+        if cidr_ipv6:
+            params['IpPermissions.1.Ipv6Ranges.1.CidrIpv6'] = cidr_ipv6
         if dry_run:
             params['DryRun'] = 'true'
         return self.get_status('RevokeSecurityGroupEgress',
